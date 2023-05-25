@@ -1,0 +1,12 @@
+services:
+    server:
+        container_name: the-data-POC
+        build:
+          context: .
+          dockerfile: Dockerfile
+        image: thedatapoc
+        ports:
+          - "8080:80"
+          - "8000:443"
+        restart: unless-stopped
+        env_file: .env
