@@ -1,6 +1,6 @@
 # Crew 24 - The Data-POC
 
-## How to start aplication
+## How to start application
  
 In project directory:
 ```
