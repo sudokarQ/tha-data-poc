@@ -7,14 +7,14 @@ EXPOSE 443
 
 FROM mcr.microsoft.com/dotnet/sdk:7.0 AS build
 WORKDIR /src
-COPY ["./TheDataPOC/TheDataPOC/TheDataPOC.csproj", "TheDataPOC/"]
-RUN dotnet restore "TheDataPOC/TheDataPOC.csproj"
+COPY ["./TheDataPOC/API/API.csproj", "TheDataPOC/API/"]
+RUN dotnet restore "TheDataPOC/API/API.csproj"
 COPY . .
 WORKDIR "/src"
-RUN dotnet build "./TheDataPOC/TheDataPOC/TheDataPOC.csproj" -c Release -o /app/build
+RUN dotnet build "./TheDataPOC/API/API.csproj" -c Release -o /app/build
 
 FROM build AS publish
-RUN dotnet publish "./TheDataPOC/TheDataPOC/TheDataPOC.csproj" -c Release -o /app/publish /p:UseAppHost=false
+RUN dotnet publish "./TheDataPOC/API/API.csproj" -c Release -o /app/publish /p:UseAppHost=false
 
 FROM base AS final
 WORKDIR /app
