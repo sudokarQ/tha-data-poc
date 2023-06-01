@@ -8,6 +8,7 @@ EXPOSE 443
 FROM mcr.microsoft.com/dotnet/sdk:7.0 AS build
 WORKDIR /src
 COPY ["./TheDataPOC/API/API.csproj", "TheDataPOC/API/"]
+COPY ["./TheDataPOC/TheDataPOC.Tests/TheDataPOC.Tests.csproj", "TheDataPOC.Tests/"]
 RUN dotnet restore "TheDataPOC/API/API.csproj"
 COPY . .
 WORKDIR "/src"
