@@ -8,8 +8,8 @@
     using Microsoft.EntityFrameworkCore;
     using Microsoft.EntityFrameworkCore.Storage;
 
-    public class UnitOfWork : IDisposable, IUnitOfWork
-	{
+    public class UnitOfWork : IUnitOfWork
+    {
         private ApplicationContext context;
 
         private bool disposed = false;
@@ -24,9 +24,9 @@
             return new GenericRepository<T>(context);
         }
 
-        public IDbContextTransaction BeginTransaction(IsolationLevel isolationLevel)
+        public async Task<IDbContextTransaction> BeginTransactionAsync(IsolationLevel isolationLevel)
         {
-            return context.Database.BeginTransaction(isolationLevel);
+            return await context.Database.BeginTransactionAsync(isolationLevel);
         }
 
         public async Task<int> SaveAsync()
@@ -45,10 +45,11 @@
             if (!disposed)
             {
                 if (disposing)
-        {
+                {
                     context.Dispose();
                 }
             }
+            
             disposed = true;
         }
     }

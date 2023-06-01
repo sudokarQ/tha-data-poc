@@ -2,9 +2,13 @@
 {
 	public class Role
 	{
-        public Guid RoleId { get; set; }
+        public int Id { get; set; }
 
         public string RoleName { get; set; }
+
+        public string NormalizedRoleName {get; set;}
+
+        public List<UserRole> UserRoles {get; set;}
     }
 }
 

@@ -1,10 +1,11 @@
 ﻿namespace Infrastructure.Repositories
 {
     using System.Linq.Expressions;
+    using Domain.Models;
 
     public interface IGenericRepository<TEntity> where TEntity : class
 	{
-        Task<TEntity> GetByIdAsync(Guid id);
+        Task<TEntity> GetByIdAsync(int id);
 
         void Update(TEntity entity);
 
@@ -17,6 +18,13 @@
         IQueryable<TEntity> Get(Expression<Func<TEntity, bool>>? expression = null);
 
         Task AddRangeAsync(IEnumerable<TEntity> entities);
+
+        Task<IList<string>> GetUserRolesAsync(int userId);
+
+        Task<Role> GetRoleByNameAsync(string normalizedRoleName);
+
+        Task<IList<User>> GetUsersInRoleAsync(int roleId);
+
+        Task<TEntity> GetByIdAsync(params object[] idValues);
     }
 }
-

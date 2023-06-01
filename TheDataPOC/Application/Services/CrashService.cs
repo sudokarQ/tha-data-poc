@@ -79,7 +79,7 @@
 
         public async Task UploadToDatabase(List<Crash> crashes)
         {
-            using (var transaction = unitOfWork.BeginTransaction(IsolationLevel.ReadUncommitted))
+            using (var transaction = await unitOfWork.BeginTransactionAsync(IsolationLevel.ReadUncommitted))
             {
                 await unitOfWork.GetRepository<Crash>().AddRangeAsync(crashes);
 

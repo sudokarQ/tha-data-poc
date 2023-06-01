@@ -4,6 +4,8 @@
 
     using AutoMapper;
 
+    using Domain.Models;
+    using Microsoft.AspNetCore.Identity;
     using Microsoft.Extensions.DependencyInjection;
 
     using Services;
@@ -25,6 +27,8 @@
             services.AddScoped<ICrashService, CrashService>();
 
             services.AddScoped<ITrafficService, TrafficService>();
+            services.AddScoped<IAccountService, AccountService>();
+            services.AddScoped<IUserManagementService, UserManagementService>();
             
             services.AddScoped<IDocumentService, DocumentService>();
 

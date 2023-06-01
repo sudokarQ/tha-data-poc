@@ -90,7 +90,7 @@
 
         public async Task UploadToDatabase(List<Traffic> traffics)
         {
-            using (var transaction = unitOfWork.BeginTransaction(IsolationLevel.ReadUncommitted))
+            using (var transaction = await unitOfWork.BeginTransactionAsync(IsolationLevel.ReadUncommitted))
             {
                 await unitOfWork.GetRepository<Traffic>().AddRangeAsync(traffics);
 

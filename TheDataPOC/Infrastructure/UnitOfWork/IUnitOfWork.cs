@@ -6,13 +6,13 @@
 
     using Microsoft.EntityFrameworkCore.Storage;
 
-    public interface IUnitOfWork
+    public interface IUnitOfWork : IDisposable
 	{
         public Task<int> SaveAsync();
 
         IGenericRepository<TEntity> GetRepository<TEntity>() where TEntity : class;
 
-        public IDbContextTransaction BeginTransaction(IsolationLevel isolationLevel);
+        public Task<IDbContextTransaction> BeginTransactionAsync(IsolationLevel isolationLevel);
     }
 }
 

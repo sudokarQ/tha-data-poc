@@ -34,7 +34,7 @@
             {
                 var result = await uploadService.UploadFileAsync(file);
 
-                return Ok($"Total rows:{result.AllRows}, uploaded rows: {result.UploadedRows}");
+                return Ok($"Total rows:{result}, uploaded rows: {result}");
             }
             catch (Exception ex)
             {

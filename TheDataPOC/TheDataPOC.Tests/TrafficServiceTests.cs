@@ -38,7 +38,7 @@
 
             this.mapper = mapperConfig.CreateMapper();
            
-            unitOfWorkMock.Setup(u => u.BeginTransaction(IsolationLevel.ReadUncommitted)).Returns(transactionMock.Object);
+            unitOfWorkMock.Setup(u => u.BeginTransactionAsync(IsolationLevel.ReadUncommitted)).ReturnsAsync(transactionMock.Object);
 
             unitOfWorkMock.Setup(u => u.GetRepository<Traffic>()).Returns(new Mock<IGenericRepository<Traffic>>().Object);
         }

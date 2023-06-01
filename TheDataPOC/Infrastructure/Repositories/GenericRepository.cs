@@ -2,7 +2,7 @@
 {
     using System.Linq;
     using System.Linq.Expressions;
-    
+    using Domain.Models;
     using Infrastructure.Database;
 
     using Microsoft.EntityFrameworkCore;
@@ -45,7 +45,7 @@
             return dbSet.Where(expression).AsQueryable();
         }
 
-        public async Task<TEntity> GetByIdAsync(Guid id)
+        public async Task<TEntity> GetByIdAsync(int id)
         {
             return await dbSet.FindAsync(id);
         }
@@ -58,6 +58,37 @@
         public void Update(TEntity entity)
         {
             dbSet.Update(entity);
+        }
+
+        public async Task<IList<string>> GetUserRolesAsync(int userId) {
+            var roleNameCollection = await context.Set<UserRole>()
+                .Where(userRole => userRole.UserId == userId)
+                .Select(userRole => userRole.Role.RoleName)
+                .ToListAsync();
+
+            return roleNameCollection;
+        }
+
+        public async Task<Role> GetRoleByNameAsync(string normalizedRoleName)
+        {
+            var result = await context.Set<Role>().SingleOrDefaultAsync(r => r.NormalizedRoleName == normalizedRoleName);
+
+            return result;
+        }
+
+        public async Task<IList<User>> GetUsersInRoleAsync(int roleId)
+        {
+            var users = await context.Set<UserRole>()
+                .Where(userRole => userRole.RoleId == roleId)
+                .Select(userRole => userRole.User)
+                .ToListAsync();
+
+            return users;
+        }
+
+        public async Task<TEntity> GetByIdAsync(params object[] idValues)
+        {
+            return await context.Set<TEntity>().FindAsync(idValues);
         }
     }
 }

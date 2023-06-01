@@ -20,7 +20,7 @@
 
         public InjuryType InjuryType { get; set; }
 
-        public string PrimaryFactor { get; set; }
+        public string? PrimaryFactor { get; set; }
 
         public string Latitude { get; set; }
 
