@@ -19,4 +19,4 @@ RUN dotnet publish "./TheDataPOC/API/API.csproj" -c Release -o /app/publish /p:U
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
-ENTRYPOINT ["dotnet", "TheDataPOC.dll"]
+ENTRYPOINT ["dotnet", "API.dll"]
