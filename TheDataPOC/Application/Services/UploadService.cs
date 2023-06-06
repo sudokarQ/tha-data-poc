@@ -2,6 +2,8 @@
 {
     using System.Threading.Tasks;
 
+    using Domain.Models;
+
     using Interfaces;
 
     using Microsoft.AspNetCore.Http;
@@ -9,16 +11,20 @@
     public class UploadService : IUploadService
 	{
         private readonly ICrashService crashService;
-		public UploadService(ICrashService crashService)
+
+        private readonly ITrafficService trafficService;
+
+        public UploadService(ICrashService crashService, ITrafficService trafficService)
 		{
             this.crashService = crashService;
+            this.trafficService = trafficService;
 		}
 
-        public Task<(int, int)> UploadFileAsync(IFormFile file)
+        public Task<ProcessingResult> UploadFileAsync(IFormFile file)
         {
             if (Path.GetExtension(file.FileName) != ".csv")
             {
-                throw new Exception("You can upload only .csv files");
+                throw new Exception("You can upload only .csv files");                                              
             }
 
             if (file.FileName.StartsWith("crash"))
@@ -26,7 +32,12 @@
                 return crashService.DataProcessing(file);
             }
 
-            return Task.FromResult((0,0));
+            if (file.FileName.Contains("traffic-count"))
+            {
+                return trafficService.SaveDataAsync(file);
+            }
+
+            return Task.FromResult(new ProcessingResult { AllRows = 0, UploadedRows = 0,});;
         }
     }
 }

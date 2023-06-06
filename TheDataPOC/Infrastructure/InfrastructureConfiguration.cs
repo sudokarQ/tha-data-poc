@@ -1,9 +1,9 @@
 ﻿namespace Infrastructure
 {
     using Database;
- 
-    using Infrastructure.UnitOfWork;
-    
+
+    using UnitOfWork;
+
     using Microsoft.EntityFrameworkCore;
     using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.DependencyInjection;

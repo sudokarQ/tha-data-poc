@@ -16,7 +16,7 @@
                 return connection;
             }
 
-            return configuration.GetConnectionString("TheDataPOCDb");
+            return configuration["TheDataPOCDb"];
         }
     }
 }

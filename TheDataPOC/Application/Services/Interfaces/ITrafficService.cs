@@ -4,9 +4,8 @@
 
     using Microsoft.AspNetCore.Http;
 
-    public interface ICrashService
+    public interface ITrafficService
 	{
-        public Task<ProcessingResult> DataProcessing(IFormFile file);
+        public Task<ProcessingResult> SaveDataAsync(IFormFile file);
     }
 }
-

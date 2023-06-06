@@ -1,10 +1,12 @@
 ﻿namespace Application.Services.Interfaces
 {
+    using Domain.Models;
+
     using Microsoft.AspNetCore.Http;
 
     public interface IUploadService
 	{
-        public Task<(int, int)> UploadFileAsync(IFormFile file);
+        public Task<ProcessingResult> UploadFileAsync(IFormFile file);
     }
 }
 

@@ -22,7 +22,7 @@
             {
                 var result = await uploadService.UploadFileAsync(file);
 
-                return Ok($"Total rows:{result.Item1}, uploaded rows: {result.Item2}");
+                return Ok($"Total rows:{result.AllRows}, uploaded rows: {result.UploadedRows}");
             }
             catch (Exception ex)
             {
