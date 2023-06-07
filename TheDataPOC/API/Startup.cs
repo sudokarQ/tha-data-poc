@@ -1,7 +1,5 @@
 ﻿namespace API
 {
-    using System;
-
     using Application;
 
     using Infrastructure;

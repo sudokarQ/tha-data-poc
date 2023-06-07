@@ -1,56 +1,63 @@
 ﻿namespace Infrastructure.Repositories
 {
+    using System.Linq;
     using System.Linq.Expressions;
 
     using Infrastructure.Database;
 
+    using Microsoft.EntityFrameworkCore;
+    
     public class GenericRepository<TEntity> : IGenericRepository<TEntity> where TEntity: class
 	{
         protected readonly ApplicationContext context;
 
+        protected readonly DbSet<TEntity> dbSet;
+
+
         public GenericRepository(ApplicationContext context)
         {
             this.context = context;
+            this.dbSet = context.Set<TEntity>();
         }
 
-        public Task AddAsync(TEntity entity)
+        public async Task AddAsync(TEntity entity)
         {
-            throw new NotImplementedException();
+            await dbSet.AddAsync(entity);
         }
 
-        public Task AddRangeAsync(IEnumerable<TEntity> entities)
+        public async Task AddRangeAsync(IEnumerable<TEntity> entities)
         {
-            throw new NotImplementedException();
+            await dbSet.AddRangeAsync(entities);
         }
 
-        public Task<bool> AnyAsync(Expression<Predicate<TEntity>> predicate)
+        public async Task<bool> AnyAsync(Expression<Func<TEntity, bool>> predicate)
         {
-            throw new NotImplementedException();
+            return await dbSet.AnyAsync(predicate);
         }
 
-        public IEnumerable<TEntity> Get(Expression<Predicate<TEntity>> predicate)
+        public IEnumerable<TEntity> Get(Expression<Func<TEntity, bool>>? expression = null)
         {
-            throw new NotImplementedException();
+            if (expression is null)
+        {
+                return dbSet.AsEnumerable();
         }
 
-        public Task<IEnumerable<TEntity>> GetAllAsync()
-        {
-            throw new NotImplementedException();
+            return dbSet.Where(expression).AsEnumerable();
         }
 
-        public Task<TEntity> GetByIdAsync(Guid id)
+        public async Task<TEntity> GetByIdAsync(Guid id)
         {
-            throw new NotImplementedException();
+            return await dbSet.FindAsync(id);
         }
 
         public void Remove(TEntity entity)
         {
-            throw new NotImplementedException();
+            dbSet.Remove(entity);
         }
 
         public void Update(TEntity entity)
         {
-            throw new NotImplementedException();
+            dbSet.Update(entity);
         }
     }
 }

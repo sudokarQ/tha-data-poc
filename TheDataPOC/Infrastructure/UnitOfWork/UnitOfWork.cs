@@ -2,34 +2,54 @@
 {
     using System.Data;
 
+    using Infrastructure.Database;
     using Infrastructure.Repositories;
 
+    using Microsoft.EntityFrameworkCore;
     using Microsoft.EntityFrameworkCore.Storage;
 
-    public class UnitOfWork : IUnitOfWork
+    public class UnitOfWork : IDisposable, IUnitOfWork
 	{
-		public UnitOfWork()
+        private ApplicationContext context;
+
+        private bool disposed = false;
+
+        public UnitOfWork(ApplicationContext context)
 		{
+            this.context = context;
 		}
+
+        public IGenericRepository<T> GetRepository<T>() where T : class
+        {
+            return new GenericRepository<T>(context);
+        }
 
         public IDbContextTransaction BeginTransaction(IsolationLevel isolationLevel)
         {
-            throw new NotImplementedException();
+            return context.Database.BeginTransaction(isolationLevel);
+        }
+
+        public async Task<int> SaveAsync()
+        {
+            return await context.SaveChangesAsync();
         }
 
         public void Dispose()
         {
-            throw new NotImplementedException();
+            Dispose(true);
+            GC.SuppressFinalize(this);
         }
 
-        public IGenericRepository<TEntity> GetRepository<TEntity>() where TEntity: class
+        protected virtual void Dispose(bool disposing)
         {
-            throw new NotImplementedException();
-        }
-
-        public Task SaveChangesAsync()
+            if (!disposed)
+            {
+                if (disposing)
         {
-            throw new NotImplementedException();
+                    context.Dispose();
+                }
+            }
+            disposed = true;
         }
     }
 }

@@ -6,9 +6,9 @@
 
     using Microsoft.EntityFrameworkCore.Storage;
 
-    public interface IUnitOfWork : IDisposable
+    public interface IUnitOfWork
 	{
-        Task SaveChangesAsync();
+        public Task<int> SaveAsync();
 
         IGenericRepository<TEntity> GetRepository<TEntity>() where TEntity : class;
 

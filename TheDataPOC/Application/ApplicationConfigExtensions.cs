@@ -1,5 +1,7 @@
 ﻿namespace Application
 {
+    using Infrastructure.UnitOfWork;
+
     using Microsoft.Extensions.DependencyInjection;
 
     using Services;
@@ -15,6 +17,7 @@
         private static IServiceCollection AddServices(this IServiceCollection services)
         {
             services.AddScoped<IUploadService, UploadService>();
+            services.AddScoped<ICrashService, CrashService>();
             
             return services;
         }

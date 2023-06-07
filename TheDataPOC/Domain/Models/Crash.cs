@@ -1,8 +1,12 @@
 ﻿namespace Domain.Models
 {
+    using Enums;
+ 
 	public class Crash
 	{
-        public Guid CrashId { get; set; }
+        public Guid Id { get; set; }
+
+        public DateTime? Date { get; set; }
 
         public int Year { get; set; }
 
@@ -10,17 +14,17 @@
 
         public int Day { get; set; }
 
-        public string Weekend { get; set; }
+        public bool IsWeekend { get; set; }
 
-        public int Hour { get; set; }
+        public int? Hour { get; set; }
 
-        public int InjuryType { get; set; }
+        public InjuryType InjuryType { get; set; }
 
         public string PrimaryFactor { get; set; }
 
-        public double Latitude { get; set; }
+        public string Latitude { get; set; }
 
-        public double Longitude { get; set; }
+        public string Longitude { get; set; }
     }
 }
 
