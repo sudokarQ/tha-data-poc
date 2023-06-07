@@ -1,7 +1,9 @@
 ﻿namespace Infrastructure
 {
     using Database;
-
+ 
+    using Infrastructure.UnitOfWork;
+    
     using Microsoft.EntityFrameworkCore;
     using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.DependencyInjection;
@@ -13,6 +15,8 @@
             string connectionString,
             IConfiguration configuration)
         {
+            services.AddScoped<IUnitOfWork, UnitOfWork.UnitOfWork>();
+
             services
                 .AddDbContext<ApplicationContext>(opt =>
                 {
@@ -22,7 +26,7 @@
                     });
                     opt.EnableSensitiveDataLogging();
                 });
-                      
+
             var serviceProvider = services.BuildServiceProvider();
 
             return services;

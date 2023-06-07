@@ -4,7 +4,7 @@
 
     public interface IUploadService
 	{
-        public Task<int> UploadFileAsync(IFormFile file);
+        public Task<(int, int)> UploadFileAsync(IFormFile file);
     }
 }
 

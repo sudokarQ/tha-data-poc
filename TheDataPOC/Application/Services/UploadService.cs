@@ -8,18 +8,25 @@
 
     public class UploadService : IUploadService
 	{
-		public UploadService()
+        private readonly ICrashService crashService;
+		public UploadService(ICrashService crashService)
 		{
+            this.crashService = crashService;
 		}
 
-        public Task<int> UploadFileAsync(IFormFile file)
+        public Task<(int, int)> UploadFileAsync(IFormFile file)
         {
-            if (Path.GetExtension(file.FileName) == ".csv")
+            if (Path.GetExtension(file.FileName) != ".csv")
             {
-                return Task.FromResult(0);
+                throw new Exception("You can upload only .csv files");
             }
 
-            throw new Exception("You can upload only .csv files");
+            if (file.FileName.StartsWith("crash"))
+            {
+                return crashService.DataProcessing(file);
+            }
+
+            return Task.FromResult((0,0));
         }
     }
 }
