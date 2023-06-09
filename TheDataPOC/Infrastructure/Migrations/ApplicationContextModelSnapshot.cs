@@ -63,7 +63,7 @@ namespace Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Crashes");
+                    b.ToTable("Crashes", (string)null);
                 });
 
             modelBuilder.Entity("Domain.Models.Pedestrian", b =>
@@ -95,7 +95,7 @@ namespace Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Pedestrians");
+                    b.ToTable("Pedestrians", (string)null);
                 });
 
             modelBuilder.Entity("Domain.Models.Role", b =>
@@ -110,7 +110,7 @@ namespace Infrastructure.Migrations
 
                     b.HasKey("RoleId");
 
-                    b.ToTable("Roles");
+                    b.ToTable("Roles", (string)null);
                 });
 
             modelBuilder.Entity("Domain.Models.Traffic", b =>
@@ -169,7 +169,7 @@ namespace Infrastructure.Migrations
 
                     b.HasKey("TrafficId");
 
-                    b.ToTable("Traffics");
+                    b.ToTable("Traffics", (string)null);
                 });
 
             modelBuilder.Entity("Domain.Models.User", b =>
@@ -196,7 +196,7 @@ namespace Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Users");
+                    b.ToTable("Users", (string)null);
                 });
 #pragma warning restore 612, 618
         }

@@ -17,9 +17,11 @@
 
         public void ConfigureServices(IServiceCollection services)
         {
+            var connection = configuration.GetDbConnectionString(environment);
+
             services
-                .AddApplication()
-                .AddInfrastructure("", configuration);
+            .AddApplication()
+                .AddInfrastructure(connection, configuration);
 
             services
                 .AddSwaggerGen()
