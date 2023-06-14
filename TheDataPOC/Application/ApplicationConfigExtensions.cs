@@ -1,6 +1,8 @@
 ﻿namespace Application
 {
-    using Infrastructure.UnitOfWork;
+    using Application.AutoMapping;
+
+    using AutoMapper;
 
     using Microsoft.Extensions.DependencyInjection;
 
@@ -11,15 +13,32 @@
 	{
         public static IServiceCollection AddApplication(this IServiceCollection services)
         {
+            services.AddAutoMapper();
+
             return services.AddServices();
         }
 
         private static IServiceCollection AddServices(this IServiceCollection services)
         {
             services.AddScoped<IUploadService, UploadService>();
+
             services.AddScoped<ICrashService, CrashService>();
+
+            services.AddScoped<ITrafficService, TrafficService>();
             
             return services;
+        }
+
+        private static IServiceCollection AddAutoMapper(this IServiceCollection services)
+        {
+            var mapperConfig = new MapperConfiguration(mc =>
+            {
+                mc.AddProfile(new TrafficProfile());
+            });
+
+            IMapper mapper = mapperConfig.CreateMapper();
+
+            return services.AddSingleton(mapper);
         }
     }
 }

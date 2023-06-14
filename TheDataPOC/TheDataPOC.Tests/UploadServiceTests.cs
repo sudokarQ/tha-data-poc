@@ -1,37 +1,44 @@
 ﻿namespace TheDataPOC.Tests
 {
-    using System.IO;
-    using System.Threading.Tasks;
-
     using Application.Services;
     using Application.Services.Interfaces;
 
+    using AutoMapper;
+
+    using Domain.Models;
+   
     using Infrastructure.UnitOfWork;
     
     using Microsoft.AspNetCore.Http;
-
+    
     using Moq;
 
     public class UploadServiceTests
-	{
+    {
         private readonly ICrashService crashService;
+
+        private readonly ITrafficService trafficService;
 
         private readonly Mock<IUnitOfWork> unitOfWorkMock;
 
+        private readonly Mock<IMapper> mapperMock;
 
         public UploadServiceTests()
         {
-            unitOfWorkMock = new Mock<IUnitOfWork>();
+            this.unitOfWorkMock = new Mock<IUnitOfWork>();
 
-            ICrashService crashService = new CrashService(unitOfWorkMock.Object);
+            this.mapperMock = new Mock<IMapper>();
 
+            this.crashService = new CrashService(unitOfWorkMock.Object);
+
+            this.trafficService = new TrafficService(unitOfWorkMock.Object, mapperMock.Object);
         }
 
         [Fact]
         public async Task UploadCSVFilesNegative()
         {
             // Arrange
-            UploadService uploadService = new UploadService(crashService);
+            var uploadService = new UploadService(crashService, trafficService);
 
             FormFile file;
 
@@ -55,7 +62,7 @@
         public async Task UploadCSVFilesPositive()
         {
             // Arrange
-            UploadService uploadService = new UploadService(crashService);
+            var uploadService = new UploadService(crashService, trafficService);
 
             FormFile file;
 
@@ -71,31 +78,53 @@
             var result = await uploadService.UploadFileAsync(file);
 
             // Assert
-            Assert.Equal((0, 0), result);
+            Assert.Equal((0,0), (result.UploadedRows, result.AllRows));
         }
 
         [Fact]
-        public async Task UploadServiceResultNotNullPositive()
+        public async Task ProcessTrafficFiles()
         {
             // Arrange
-            UploadService uploadService = new UploadService(crashService);
+            var uploadService = new UploadService(crashService, trafficService);
 
             FormFile file;
 
-            using (var stream = File.Create("placeholder.csv"))
+            using (var stream = File.Create("traffic-count-2001.csv"))
             {
                 file = new FormFile(stream, 0, stream.Length, null, Path.GetFileName(stream.Name))
                 {
                     Headers = new HeaderDictionary(),
                 };
+
+                // Act
+                var result = await uploadService.UploadFileAsync(file);
+
+                // Assert
+                Assert.Equal((0, 0), (result.AllRows, result.UploadedRows));
+            }            
+        }
+
+        [Fact]
+        public async Task ProcessCrashFiles()
+        {
+            // Arrange
+            var uploadService = new UploadService(crashService, trafficService);
+
+            FormFile file;
+
+            using (var stream = File.Create("crash-2001.csv"))
+            {
+                file = new FormFile(stream, 0, stream.Length, null, Path.GetFileName(stream.Name))
+                {
+                    Headers = new HeaderDictionary(),
+                };
+
+                // Act
+                var result = await uploadService.UploadFileAsync(file);
+
+                // Assert
+                Assert.Equal((0, 0), (result.AllRows, result.UploadedRows));                
             }
-
-            // Act
-            var result = await uploadService.UploadFileAsync(file);
-
-            // Assert
-            Assert.NotNull(result);
         }
     }
 }
-

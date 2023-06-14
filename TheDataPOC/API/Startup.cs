@@ -19,8 +19,10 @@
         {
             var connection = configuration.GetDbConnectionString(environment);
 
+            services.AddAutoMapper(typeof(Startup));
+
             services
-            .AddApplication()
+                .AddApplication()
                 .AddInfrastructure(connection, configuration);
 
             services

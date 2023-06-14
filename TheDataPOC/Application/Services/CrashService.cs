@@ -20,7 +20,7 @@
             this.unitOfWork = unitOfWork;
         }
 
-        public async Task<(int, int)> DataProcessing(IFormFile file)
+        public async Task<ProcessingResult> DataProcessing(IFormFile file)
         {
             var list = GetCrashCSVs(file);
 
@@ -64,9 +64,12 @@
 
             var uploadedRows = result.Count();
 
-            await UploadToDatabase(result);
+            if (uploadedRows != 0)
+            {
+                await UploadToDatabase(result);
+            }            
 
-            return (totalRows, uploadedRows);
+            return new ProcessingResult { AllRows = totalRows, UploadedRows = uploadedRows, };
         }
 
         public async Task UploadToDatabase(List<Crash> crashes)
