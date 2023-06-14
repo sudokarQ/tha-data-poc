@@ -26,6 +26,9 @@
 
             services.AddScoped<ITrafficService, TrafficService>();
             
+            services.AddScoped<IDocumentService, DocumentService>();
+
+            
             return services;
         }
 

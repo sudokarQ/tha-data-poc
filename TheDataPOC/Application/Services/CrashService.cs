@@ -1,15 +1,20 @@
 ﻿namespace Application.Services
 {
-    using Application.CSVHelper;
-    using Application.Services.Interfaces;
-    using CsvHelper;
-    using Domain.Enums;
-    using Domain.Models;
-    using Infrastructure.UnitOfWork;
-    using Microsoft.AspNetCore.Http;
     using System;
     using System.Data;
     using System.Globalization;
+
+    using Application.CSVHelper;
+
+    using CsvHelper;
+    
+    using Domain.Enums;
+    using Domain.Models;
+    
+    using Infrastructure.UnitOfWork;
+    using Interfaces;
+    
+    using Microsoft.AspNetCore.Http;
 
     public class CrashService : ICrashService
     {
@@ -106,7 +111,6 @@
 
             return InjuryType.Unknown;
         }
-
 
         public int? TimeParser(string time)
         {

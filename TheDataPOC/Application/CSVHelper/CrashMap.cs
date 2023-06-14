@@ -18,7 +18,7 @@
             
             Map(m => m.Time).Name("Hour", "Time", "Collision Time", "TIME");
             
-            Map(m => m.InjuryType).Name("Injury Type").Optional();
+            Map(m => m.InjuryType).Name("Injury Type", "InjuryType").Optional();
 
             Map(m => m.NumberInjured).Name("Number Injured").Optional();
 
@@ -28,7 +28,7 @@
 
             Map(m => m.Dead).Name("Dead", "DEAD").Optional();
             
-            Map(m => m.PrimaryFactor).Name("Primary Factor");
+            Map(m => m.PrimaryFactor).Name("Primary Factor", "PrimaryFactor");
             
             Map(m => m.Latitude).Name("Latitude");
             

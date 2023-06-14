@@ -2,13 +2,13 @@
 {
     using System.Linq;
     using System.Linq.Expressions;
-
+    
     using Infrastructure.Database;
 
     using Microsoft.EntityFrameworkCore;
-    
-    public class GenericRepository<TEntity> : IGenericRepository<TEntity> where TEntity: class
-	{
+
+    public class GenericRepository<TEntity> : IGenericRepository<TEntity> where TEntity : class
+    {
         protected readonly ApplicationContext context;
 
         protected readonly DbSet<TEntity> dbSet;
@@ -35,14 +35,14 @@
             return await dbSet.AnyAsync(predicate);
         }
 
-        public IEnumerable<TEntity> Get(Expression<Func<TEntity, bool>>? expression = null)
+        public IQueryable<TEntity> Get(Expression<Func<TEntity, bool>>? expression = null)
         {
             if (expression is null)
-        {
-                return dbSet.AsEnumerable();
-        }
+            {
+                return dbSet.AsQueryable();
+            }
 
-            return dbSet.Where(expression).AsEnumerable();
+            return dbSet.Where(expression).AsQueryable();
         }
 
         public async Task<TEntity> GetByIdAsync(Guid id)
