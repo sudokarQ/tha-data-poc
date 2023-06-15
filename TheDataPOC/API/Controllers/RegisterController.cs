@@ -1,11 +1,13 @@
-using API.ViewModels;
-using Application.Services.Interfaces;
-using Domain.Models;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
-
 namespace API.Controllers
 {
+    using API.ViewModels;
+
+    using Application.Services.Interfaces;
+
+    using Domain.Models;
+
+    using Microsoft.AspNetCore.Mvc;
+
     [ApiController]
     [Route("api/[controller]")]
     public class RegisterController : ControllerBase
@@ -13,31 +15,36 @@ namespace API.Controllers
         private readonly IAccountService _accountService;
         private readonly IConfiguration _configuration;
 
-        public RegisterController(IConfiguration configuration, IAccountService accountService) {
+        public RegisterController(IConfiguration configuration, IAccountService accountService) 
+        {
             _accountService = accountService;
             _configuration = configuration;
         }
 
-        [AllowAnonymous]
         [HttpPost]
-        public async Task<ActionResult<RegisterViewModel>> Register(RegisterViewModel registerModel) {
+        public async Task<ActionResult<RegisterViewModel>> Register(RegisterViewModel registerModel) 
+        {
             
-            if(!ModelState.IsValid) {
+            if(!ModelState.IsValid) 
+            {
                 return BadRequest(registerModel);
             }
 
-            var user = new User {
+            var user = new User 
+            {
                 UserName = registerModel.Login,
                 Email = registerModel.Email
             };
 
             var result = await _accountService.RegisterAsync(user, registerModel.Password);
 
-            if(result.Succeeded) {
+            if(result.Succeeded) 
+            {
                 return Ok(new { Message = "User registered successfully" });
             }
 
-            foreach(var error in result.Errors) {
+            foreach(var error in result.Errors) 
+            {
                 ModelState.AddModelError("", error.Description);
             }
 

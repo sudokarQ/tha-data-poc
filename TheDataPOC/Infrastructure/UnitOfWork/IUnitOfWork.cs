@@ -8,6 +8,10 @@
 
     public interface IUnitOfWork : IDisposable
 	{
+        public IUserRepository UserRepository { get; }
+
+        public IRoleRepository RoleRepository { get; }
+        
         public Task<int> SaveAsync();
 
         IGenericRepository<TEntity> GetRepository<TEntity>() where TEntity : class;

@@ -6,6 +6,8 @@
     using Domain.Models;
 
     using Microsoft.AspNetCore.Mvc;
+    using Microsoft.AspNetCore.Authorization;
+    using Domain;
 
     [ApiController]
     [Route("api/[controller]")]
@@ -28,13 +30,14 @@
         }
 
         [HttpPost]
+        [Authorize(Roles = RoleNames.User)]
         public async Task<IActionResult> UploadData(IFormFile file)
         {
             try
             {
                 var result = await uploadService.UploadFileAsync(file);
 
-                return Ok($"Total rows:{result}, uploaded rows: {result}");
+                return Ok($"Total rows:{result.AllRows}, uploaded rows: {result.UploadedRows}");
             }
             catch (Exception ex)
             {

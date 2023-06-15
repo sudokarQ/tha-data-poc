@@ -1,8 +1,9 @@
-using System.ComponentModel.DataAnnotations;
-using Domain.Models;
-
 namespace API.ViewModels
 {
+    using System.ComponentModel.DataAnnotations;
+    
+    using Domain.Models;
+
     public class LogInViewModel
     {
         [Required(ErrorMessage = "Write login")]
@@ -18,7 +19,7 @@ namespace API.ViewModels
         [DataType(DataType.Password)]
         [StringLength(User.UserPasswordMaxLength,
             MinimumLength = User.UserPasswordMinLength,
-            ErrorMessage = "Note enough symbols in your password")]
+            ErrorMessage = "Not enough symbols in your password")]
         public string Password { get; set; }
     }
 }

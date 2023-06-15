@@ -2,7 +2,9 @@
 {
     using System.Linq;
     using System.Linq.Expressions;
+
     using Domain.Models;
+    
     using Infrastructure.Database;
 
     using Microsoft.EntityFrameworkCore;
@@ -12,8 +14,7 @@
         protected readonly ApplicationContext context;
 
         protected readonly DbSet<TEntity> dbSet;
-
-
+        
         public GenericRepository(ApplicationContext context)
         {
             this.context = context;
@@ -58,32 +59,6 @@
         public void Update(TEntity entity)
         {
             dbSet.Update(entity);
-        }
-
-        public async Task<IList<string>> GetUserRolesAsync(int userId) {
-            var roleNameCollection = await context.Set<UserRole>()
-                .Where(userRole => userRole.UserId == userId)
-                .Select(userRole => userRole.Role.RoleName)
-                .ToListAsync();
-
-            return roleNameCollection;
-        }
-
-        public async Task<Role> GetRoleByNameAsync(string normalizedRoleName)
-        {
-            var result = await context.Set<Role>().SingleOrDefaultAsync(r => r.NormalizedRoleName == normalizedRoleName);
-
-            return result;
-        }
-
-        public async Task<IList<User>> GetUsersInRoleAsync(int roleId)
-        {
-            var users = await context.Set<UserRole>()
-                .Where(userRole => userRole.RoleId == roleId)
-                .Select(userRole => userRole.User)
-                .ToListAsync();
-
-            return users;
         }
 
         public async Task<TEntity> GetByIdAsync(params object[] idValues)

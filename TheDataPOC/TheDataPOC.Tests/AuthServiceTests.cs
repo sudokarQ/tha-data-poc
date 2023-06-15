@@ -1,12 +1,13 @@
 namespace TheDataPOC.Tests 
 {
     using Application.Services;
+
     using Domain.Models;
-    using Microsoft.AspNetCore.Authentication;
+
     using Microsoft.AspNetCore.Http;
     using Microsoft.AspNetCore.Identity;
     using Microsoft.Extensions.Logging;
-    using Microsoft.Extensions.Options;
+    
     using Moq;
     
     public class FakeUserManager : UserManager<User>
@@ -53,7 +54,8 @@ namespace TheDataPOC.Tests
         [Fact]
         public async Task ValidateCredentialsPositive() 
         {
-            var user = new User() {
+            var user = new User()
+            {
                 UserName = "testUser"
             };
 

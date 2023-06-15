@@ -3,8 +3,11 @@ namespace Infrastructure.Stores
     using System;
     using System.Threading;
     using System.Threading.Tasks;
+
     using Domain.Models;
+
     using Infrastructure.UnitOfWork;
+    
     using Microsoft.AspNetCore.Identity;
 
     public class RoleStore : IRoleStore<Role>
@@ -30,7 +33,7 @@ namespace Infrastructure.Stores
                 throw new ArgumentNullException($"Role cannot be null"); ;
             }
 
-            await uow.GetRepository<Role>().AddAsync(role);
+            await uow.RoleRepository.AddAsync(role);
             await uow.SaveAsync();
 
             return IdentityResult.Success;
@@ -45,7 +48,7 @@ namespace Infrastructure.Stores
                 throw new ArgumentNullException($"Role does not exist");
             }
 
-            uow.GetRepository<Role>().Update(role);
+            uow.RoleRepository.Update(role);
             await uow.SaveAsync();
 
             return IdentityResult.Success;
@@ -60,7 +63,7 @@ namespace Infrastructure.Stores
                 throw new ArgumentNullException($"Role cannot be null"); ;
             }
 
-            uow.GetRepository<Role>().Remove(role);
+            uow.RoleRepository.Remove(role);
             await uow.SaveAsync();
 
             return IdentityResult.Success;
@@ -75,7 +78,7 @@ namespace Infrastructure.Stores
                 throw new ArgumentNullException("Invalid identificator value");
             }
 
-            var role = await uow.GetRepository<Role>().GetByIdAsync(id);
+            var role = await uow.RoleRepository.GetByIdAsync(id);
 
             return role;
         }
@@ -84,7 +87,7 @@ namespace Infrastructure.Stores
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            return await uow.GetRepository<Role>().GetEntityAsync(role => role.NormalizedRoleName == normalizedRoleName);
+            return await uow.RoleRepository.GetRoleByNameAsync(normalizedRoleName);
         }
 
         public Task<string> GetNormalizedRoleNameAsync(Role role, CancellationToken cancellationToken)

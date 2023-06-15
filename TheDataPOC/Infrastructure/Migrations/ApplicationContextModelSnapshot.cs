@@ -62,7 +62,7 @@ namespace Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Crashes", (string)null);
+                    b.ToTable("Crashes");
                 });
 
             modelBuilder.Entity("Domain.Models.Pedestrian", b =>
@@ -94,7 +94,7 @@ namespace Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Pedestrians", (string)null);
+                    b.ToTable("Pedestrians");
                 });
 
             modelBuilder.Entity("Domain.Models.Role", b =>
@@ -194,7 +194,7 @@ namespace Infrastructure.Migrations
 
                     b.HasKey("TrafficId");
 
-                    b.ToTable("Traffics", (string)null);
+                    b.ToTable("Traffics");
                 });
 
             modelBuilder.Entity("Domain.Models.User", b =>
@@ -225,51 +225,7 @@ namespace Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Users", (string)null);
-                });
-
-            modelBuilder.Entity("Domain.Models.UserRole", b =>
-                {
-                    b.Property<int>("UserId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("RoleId")
-                        .HasColumnType("int");
-
-                    b.HasKey("UserId", "RoleId");
-
-                    b.HasIndex("RoleId");
-
-                    b.ToTable("UserRole");
-                });
-
-            modelBuilder.Entity("Domain.Models.UserRole", b =>
-                {
-                    b.HasOne("Domain.Models.Role", "Role")
-                        .WithMany("UserRoles")
-                        .HasForeignKey("RoleId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Domain.Models.User", "User")
-                        .WithMany("UserRoles")
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Role");
-
-                    b.Navigation("User");
-                });
-
-            modelBuilder.Entity("Domain.Models.Role", b =>
-                {
-                    b.Navigation("UserRoles");
-                });
-
-            modelBuilder.Entity("Domain.Models.User", b =>
-                {
-                    b.Navigation("UserRoles");
+                    b.ToTable("Users");
                 });
 
             modelBuilder.Entity("Domain.Models.UserRole", b =>

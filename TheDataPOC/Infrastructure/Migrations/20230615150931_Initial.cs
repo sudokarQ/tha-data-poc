@@ -17,20 +17,21 @@ namespace Infrastructure.Migrations
                 name: "Crashes",
                 columns: table => new
                 {
-                    CrashId = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    Date = table.Column<DateTime>(type: "datetime2", nullable: true),
                     Year = table.Column<int>(type: "int", nullable: false),
                     Month = table.Column<int>(type: "int", nullable: false),
                     Day = table.Column<int>(type: "int", nullable: false),
-                    Weekend = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    Hour = table.Column<int>(type: "int", nullable: false),
+                    IsWeekend = table.Column<bool>(type: "bit", nullable: false),
+                    Hour = table.Column<int>(type: "int", nullable: true),
                     InjuryType = table.Column<int>(type: "int", nullable: false),
                     PrimaryFactor = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    Latitude = table.Column<double>(type: "float", nullable: false),
-                    Longitude = table.Column<double>(type: "float", nullable: false)
+                    Latitude = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Longitude = table.Column<string>(type: "nvarchar(max)", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Crashes", x => x.CrashId);
+                    table.PrimaryKey("PK_Crashes", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(

@@ -1,9 +1,11 @@
 ﻿namespace API
 {
     using System.Text;
+    
     using Application;
 
     using Infrastructure;
+
     using Microsoft.AspNetCore.Authentication.JwtBearer;
     using Microsoft.Extensions.Configuration;
     using Microsoft.IdentityModel.Tokens;

@@ -1,15 +1,18 @@
 ﻿namespace Infrastructure
 {
     using Infrastructure.Stores;
+    using Infrastructure.Repositories;
+
     using Database;
+    
     using Domain.Models;
-    using Microsoft.AspNetCore.Identity;
+    
     using UnitOfWork;
 
     using Microsoft.EntityFrameworkCore;
     using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.DependencyInjection;
-    using Infrastructure.UnitOfWork;
+    using Microsoft.AspNetCore.Identity;
 
     public static class InfrastructureConfiguration
     {
@@ -18,6 +21,9 @@
             string connectionString,
             IConfiguration configuration)
         {
+            
+            services.AddScoped<IUserRepository, UserRepository>();
+            services.AddScoped<IRoleRepository, RoleRepository>();
             services.AddScoped<IUnitOfWork, UnitOfWork.UnitOfWork>();
             services.AddTransient<IUserStore<User>, UserStore>();   
             services.AddTransient<IRoleStore<Role>, RoleStore>();
@@ -38,7 +44,8 @@
             builder.AddUserManager<UserManager<User>>();
             builder.AddSignInManager<SignInManager<User>>();
 
-            services.ConfigureApplicationCookie(configure => {
+            services.ConfigureApplicationCookie(configure => 
+            {
                 configure.AccessDeniedPath = "/api/AccessDenied";
             });
 

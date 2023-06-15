@@ -1,13 +1,16 @@
 namespace Infrastructure.Stores
 {
-    using Domain.Models;
-    using Infrastructure.UnitOfWork;
     using System;
     using System.Collections.Generic;
     using System.Threading;
     using System.Threading.Tasks;
-    using Microsoft.AspNetCore.Identity;
     using System.Linq;
+
+    using Domain.Models;
+
+    using Infrastructure.UnitOfWork;
+    
+    using Microsoft.AspNetCore.Identity;
 
     public class UserStore : IUserStore<User>,
         IUserPasswordStore<User>,
@@ -32,7 +35,7 @@ namespace Infrastructure.Stores
                 throw new ArgumentNullException($"User cannot be null"); ;
             }
 
-            await uow.GetRepository<User>().AddAsync(user);
+            await uow.UserRepository.AddAsync(user);
             await uow.SaveAsync();
 
             return IdentityResult.Success;
@@ -47,7 +50,7 @@ namespace Infrastructure.Stores
                 throw new ArgumentNullException($"User does not exist");
             }
 
-            uow.GetRepository<User>().Remove(user);
+            uow.UserRepository.Remove(user);
             await uow.SaveAsync();
 
             return IdentityResult.Success;
@@ -62,7 +65,7 @@ namespace Infrastructure.Stores
                 throw new ArgumentNullException("Invalid identificator value");
             }
 
-            var user = await uow.GetRepository<User>().GetByIdAsync(id);
+            var user = await uow.UserRepository.GetByIdAsync(id);
 
             return user;
         }
@@ -70,9 +73,7 @@ namespace Infrastructure.Stores
         public async Task<User> FindByNameAsync(string userName, CancellationToken cancellationToken)
         {
             cancellationToken.ThrowIfCancellationRequested();
-            var repo = uow.GetRepository<User>();
-
-            var user = await repo.GetEntityAsync(user => user.UserName == userName);
+            var user = await uow.UserRepository.FindByNameAsync(userName);
 
             return user;
         }
@@ -122,7 +123,7 @@ namespace Infrastructure.Stores
                 throw new ArgumentNullException($"User does not exist"); ;
             }
 
-            uow.GetRepository<User>().Update(user);
+            uow.UserRepository.Update(user);
             await uow.SaveAsync();
 
             return IdentityResult.Success;
@@ -157,6 +158,7 @@ namespace Infrastructure.Stores
             }
 
             user.UserName = userName;
+
             return Task.CompletedTask;
         }
 
@@ -203,6 +205,7 @@ namespace Infrastructure.Stores
             }
 
             user.PasswordHash = passwordHash;
+
             return Task.CompletedTask;
         }
 
@@ -224,19 +227,21 @@ namespace Infrastructure.Stores
                 throw new ArgumentNullException($"Argument roleName is empty");
             }
 
-            var role = await uow.GetRepository<Role>().GetEntityAsync(role => role.RoleName == roleName);
+            var role = await uow.RoleRepository.GetRoleByNameAsync(roleName);
 
             if(role == null)
             {
                 throw new ArgumentNullException($"Role name does not exist");
             }
 
-            var userRole = new UserRole {
+            var userRole = new UserRole 
+            {
                 RoleId = role.Id,
                 UserId = user.Id
             };
 
             await uow.GetRepository<UserRole>().AddAsync(userRole);
+
             await uow.SaveAsync();
 
             await uow.SaveAsync();
@@ -251,7 +256,7 @@ namespace Infrastructure.Stores
                 throw new ArgumentNullException($"User does not exist");
             }
 
-            var roles = await uow.GetRepository<User>().GetUserRolesAsync(user.Id);
+            var roles = await uow.UserRepository.GetUserRoleAsync(user.Id);
 
             return roles;
         }
@@ -265,16 +270,16 @@ namespace Infrastructure.Stores
                 throw new ArgumentNullException($"Role name does not exist");
             }
 
-            var role = await uow.GetRepository<Role>().GetEntityAsync(role => role.NormalizedRoleName == normalizedRoleName);
+            var role = await uow.RoleRepository.GetRoleByNameAsync(normalizedRoleName);
 
             if (role == null)
             {
                 throw new ArgumentNullException($"Role does not exist");
             }
 
-            var users = await uow.GetRepository<User>().GetUsersInRoleAsync(role.Id);
+            var users = await uow.RoleRepository.GetUsersInRoleAsync(role.Id);
 
-            return users.ToList();
+            return users;
         }
 
         public async Task<bool> IsInRoleAsync(User user, string normalizedRoleName, CancellationToken cancellationToken)
@@ -291,7 +296,7 @@ namespace Infrastructure.Stores
                 throw new ArgumentNullException($"Role name does not exist");
             }
 
-            var role = await uow.GetRepository<Role>().GetEntityAsync(role => role.NormalizedRoleName == normalizedRoleName);
+            var role = await uow.RoleRepository.GetRoleByNameAsync(normalizedRoleName);
 
             if (role == null)
             {
@@ -299,7 +304,7 @@ namespace Infrastructure.Stores
             }
 
             var userRole = await uow.GetRepository<UserRole>()
-                .GetEntityAsync(user => user.Role.Id == role.Id);
+                .GetByIdAsync(user.Id, role.Id);
 
             return userRole != null;
         }
@@ -318,12 +323,22 @@ namespace Infrastructure.Stores
                 throw new ArgumentNullException($"Role name does not exist");
             }
 
-            var role = await uow.GetRepository<Role>().GetEntityAsync(role => role.RoleName == roleName);
+            var role = await uow.RoleRepository.GetRoleByNameAsync(roleName);
 
             if(role == null)
             {
                 throw new ArgumentNullException($"Role does not exist");
             }
+
+            var userRole = await uow.GetRepository<UserRole>()
+                .GetByIdAsync(user.Id, role.Id);
+
+            if (userRole == null)
+            {
+                throw new ArgumentNullException($"UserRole does not exist");
+            }
+
+            uow.GetRepository<UserRole>().Remove(userRole);
 
             await uow.SaveAsync();
         }

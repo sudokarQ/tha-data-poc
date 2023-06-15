@@ -7,6 +7,8 @@ namespace Application.Services.Interfaces
 {
     public interface IUserManagementService
     {
+        public Task<IList<string>> GetUserRolesAsync(User user);
+
         public Task<IEnumerable<User>> GetAllUsersAsync();
 
         public Task<User> GetUserByUserNameAsync(string userName);

@@ -37,7 +37,7 @@
                 return trafficService.SaveDataAsync(file);
             }
 
-            return Task.FromResult(new ProcessingResult { AllRows = 0, UploadedRows = 0,});;
+            return Task.FromResult(new ProcessingResult { AllRows = 0, UploadedRows = 0,});
         }
     }
 }

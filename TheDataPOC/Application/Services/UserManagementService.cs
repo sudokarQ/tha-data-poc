@@ -1,12 +1,11 @@
-using System;
-using Domain.Models;
-using System.Collections.Generic;
-using System.Threading.Tasks;
-using Infrastructure.UnitOfWork;
-using Microsoft.AspNetCore.Identity;
-
 namespace Application.Services.Interfaces
 {
+    using Domain.Models;
+
+    using Infrastructure.UnitOfWork;
+
+    using Microsoft.AspNetCore.Identity;
+    
     public class UserManagementService : IUserManagementService
     {
         private readonly IUnitOfWork _uow;
@@ -20,10 +19,14 @@ namespace Application.Services.Interfaces
             _userManager = userManager;
         }
         
+        public async Task<IList<string>> GetUserRolesAsync(User user)
+        {
+            return await _userManager.GetRolesAsync(user);
+        }
 
         public async Task<IEnumerable<User>> GetAllUsersAsync()
         {
-            var collection = await _uow.GetRepository<User>().GetRangeAsync();
+            var collection = await _uow.UserRepository.GetAllUsersAsync();
 
             return collection;
         }
