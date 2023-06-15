@@ -14,7 +14,7 @@
 
         Task<bool> AnyAsync(Expression<Func<TEntity, bool>> predicate);
 
-        IEnumerable<TEntity> Get(Expression<Func<TEntity, bool>>? expression = null);
+        IQueryable<TEntity> Get(Expression<Func<TEntity, bool>>? expression = null);
 
         Task AddRangeAsync(IEnumerable<TEntity> entities);
     }
