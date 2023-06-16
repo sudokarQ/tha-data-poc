@@ -19,6 +19,8 @@
 
         private readonly ITrafficService trafficService;
 
+        private readonly IPedestrianService pedestrianService;
+
         private readonly Mock<IUnitOfWork> unitOfWorkMock;
 
         private readonly Mock<IMapper> mapperMock;
@@ -31,6 +33,8 @@
 
             this.crashService = new CrashService(unitOfWorkMock.Object);
 
+            this.pedestrianService = new PedestrianService(unitOfWorkMock.Object);
+
             this.trafficService = new TrafficService(unitOfWorkMock.Object, mapperMock.Object);
         }
 
@@ -38,7 +42,7 @@
         public async Task UploadCSVFilesNegative()
         {
             // Arrange
-            var uploadService = new UploadService(crashService, trafficService);
+            var uploadService = new UploadService(crashService, trafficService, pedestrianService);
 
             FormFile file;
 
@@ -62,7 +66,7 @@
         public async Task UploadCSVFilesPositive()
         {
             // Arrange
-            var uploadService = new UploadService(crashService, trafficService);
+            var uploadService = new UploadService(crashService, trafficService, pedestrianService);
 
             FormFile file;
 
@@ -85,7 +89,7 @@
         public async Task ProcessTrafficFiles()
         {
             // Arrange
-            var uploadService = new UploadService(crashService, trafficService);
+            var uploadService = new UploadService(crashService, trafficService, pedestrianService);
 
             FormFile file;
 
@@ -108,7 +112,7 @@
         public async Task ProcessCrashFiles()
         {
             // Arrange
-            var uploadService = new UploadService(crashService, trafficService);
+            var uploadService = new UploadService(crashService, trafficService, pedestrianService);
 
             FormFile file;
 

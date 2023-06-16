@@ -14,13 +14,16 @@
 
         private readonly ITrafficService trafficService;
 
-        public UploadService(ICrashService crashService, ITrafficService trafficService)
+        private readonly IPedestrianService pedestrianService;
+
+        public UploadService(ICrashService crashService, ITrafficService trafficService, IPedestrianService pedestrianService)
 		{
             this.crashService = crashService;
             this.trafficService = trafficService;
+            this.pedestrianService = pedestrianService;
 		}
 
-        public Task<ProcessingResult> UploadFileAsync(IFormFile file)
+        public async Task<ProcessingResult> UploadFileAsync(IFormFile file)
         {
             if (Path.GetExtension(file.FileName) != ".csv")
             {
@@ -29,15 +32,20 @@
 
             if (file.FileName.StartsWith("crash"))
             {
-                return crashService.DataProcessing(file);
+                return await crashService.DataProcessing(file);
             }
 
             if (file.FileName.Contains("traffic-count"))
             {
-                return trafficService.SaveDataAsync(file);
+                return await trafficService.SaveDataAsync(file);
             }
 
-            return Task.FromResult(new ProcessingResult { AllRows = 0, UploadedRows = 0,});;
+            if (file.FileName.Contains("pedestrian"))
+            {
+                return await pedestrianService.DataProcessing(file);
+            }
+
+            return await Task.FromResult(new ProcessingResult { AllRows = 0, UploadedRows = 0,});;
         }
     }
 }
