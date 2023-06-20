@@ -1,10 +1,8 @@
 ﻿namespace Domain.Models
 {
-	public class Pedestrian
+	public class PedestrianCSV
 	{
-        public Guid Id { get; set; }
-
-        public DateTime? Date { get; set; }
+        public string Date { get; set; }
 
         public int? SeventhAndParkCampus { get; set; }
 

@@ -25,6 +25,8 @@
             services.AddScoped<ICrashService, CrashService>();
 
             services.AddScoped<ITrafficService, TrafficService>();
+
+            services.AddScoped<IPedestrianService, PedestrianService>();
             
             services.AddScoped<IDocumentService, DocumentService>();
 
