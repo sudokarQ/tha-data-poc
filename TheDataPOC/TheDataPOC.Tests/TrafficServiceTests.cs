@@ -1,27 +1,36 @@
 ﻿namespace TheDataPOC.Tests
 {
     using System.Data;
+    using System.Linq.Expressions;
     using System.Text;
 
     using Application.AutoMapping;
+    using Application.DTOs;
     using Application.Services;
-    using Application.Services.Interfaces;
 
     using AutoMapper;
 
     using Domain.Models;
-
+    
     using Infrastructure.Repositories;
     using Infrastructure.UnitOfWork;
 
     using Microsoft.AspNetCore.Http;
     using Microsoft.EntityFrameworkCore.Storage;
-
+    
+    using MockQueryable.Moq;
+    
     using Moq;
 
     public class TrafficServiceTests
     {
+        private readonly string Country = "Test";
+        
+        private readonly string Community = "Test";
+
         private readonly Mock<IUnitOfWork> unitOfWorkMock;
+
+        private readonly TrafficService trafficService;
 
         private readonly IMapper mapper;
 
@@ -41,6 +50,61 @@
             unitOfWorkMock.Setup(u => u.BeginTransaction(IsolationLevel.ReadUncommitted)).Returns(transactionMock.Object);
 
             unitOfWorkMock.Setup(u => u.GetRepository<Traffic>()).Returns(new Mock<IGenericRepository<Traffic>>().Object);
+
+            trafficService = new TrafficService(unitOfWorkMock.Object, mapper); 
+        }
+
+        [Fact]
+        public async Task UpdateTraffic_NonExistingTraffic_ThrowsArgumentException()
+        {
+            // Arrange
+            var traffics = new List<Traffic>();
+
+            unitOfWorkMock.Setup(u => u.GetRepository<Traffic>()
+                .Get(It.IsAny<Expression<Func<Traffic, bool>>>()))
+                    .Returns(traffics.AsQueryable()
+                    .BuildMock());
+
+            var updateDto = new TrafficUpdateDto { County = Country, Community = Community };
+
+            // Act & Assert
+            await Assert.ThrowsAsync<ArgumentException>(() => trafficService.UpdateTrafficAsync(updateDto));
+        }
+
+        [Fact]
+        public async Task DeleteTraffic_NonExistingTraffic_ThrowsArgumentException()
+        {
+            // Arrange
+
+            var traffic = new Traffic { TrafficId = Guid.NewGuid(), County = Country, Community = Community };
+
+            var traffics = new List<Traffic>();
+
+            unitOfWorkMock.Setup(u => u.GetRepository<Traffic>()
+                .Get(It.IsAny<Expression<Func<Traffic, bool>>>()))
+                    .Returns(traffics.AsQueryable()
+                    .BuildMock());
+
+            // Act & Assert
+            await Assert.ThrowsAsync<ArgumentException>(() => trafficService.DeleteTrafficAsync(traffic.TrafficId));
+        }
+
+        [Fact]
+        public async Task DeleteTraffic_ExistingTraffic_CalledOnce()
+        {
+            // Arrange
+
+            var traffic = new Traffic { TrafficId = Guid.NewGuid(), County = Country, Community = Community };
+
+            var traffics = new List<Traffic>();
+
+            unitOfWorkMock.Setup(u => u.GetRepository<Traffic>()
+                .Get(It.IsAny<Expression<Func<Traffic, bool>>>()))
+                    .Returns(traffics.AsQueryable()
+                    .BuildMock());
+
+            // Act & Assert
+            await Assert.ThrowsAsync<ArgumentException>(() => trafficService.DeleteTrafficAsync(traffic.TrafficId));
         }
 
         [Fact]

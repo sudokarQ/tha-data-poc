@@ -4,17 +4,22 @@
     using System.Data;
     using System.Globalization;
 
-    using Application.CSVHelper;
-
+    using CSVHelper;
     using CsvHelper;
     
     using Domain.Enums;
     using Domain.Models;
     
+    using DTOs;
+    
     using Infrastructure.UnitOfWork;
+    
     using Interfaces;
     
     using Microsoft.AspNetCore.Http;
+    using Microsoft.EntityFrameworkCore;
+    
+    using Validation;
 
     public class CrashService : ICrashService
     {
@@ -75,6 +80,56 @@
             }            
 
             return new ProcessingResult { AllRows = totalRows, UploadedRows = uploadedRows, };
+        }
+
+        public async Task<Crash> UpdateCrashAsync(CrashUpdateDto dto)
+        {
+            var crash = await unitOfWork.GetRepository<Crash>().Get(r => r.Id == dto.Id).FirstOrDefaultAsync();
+
+            if (crash is null)
+            {
+                throw new ArgumentException("Crash not found");
+            }
+
+            if (!ValidationHelper.Validate(dto))
+            {
+                throw new System.ComponentModel.DataAnnotations.ValidationException("Incorrect Latitude or Longtitude");
+            }
+
+            using (var transaction = unitOfWork.BeginTransaction(IsolationLevel.ReadUncommitted))
+            {
+                crash.Hour = dto.Hour ?? crash.Hour;
+                crash.PrimaryFactor = dto.PrimaryFactor ?? crash.PrimaryFactor;
+                crash.Latitude = dto.Latitude.ToString() ?? crash.Latitude;
+                crash.Longitude = dto.Longitude.ToString() ?? crash.Longitude;
+
+                unitOfWork.GetRepository<Crash>().Update(crash);
+
+                await unitOfWork.SaveAsync();
+
+                await transaction.CommitAsync();
+            }
+
+            return crash;
+        }
+
+        public async Task DeleteCrashAsync(Guid crashId)
+        {
+            var crash = await unitOfWork.GetRepository<Crash>().Get(r => r.Id == crashId).FirstOrDefaultAsync();
+
+            if (crash is null)
+            {
+                throw new ArgumentException("Crash not found");
+            }
+
+            using (var transaction = unitOfWork.BeginTransaction(IsolationLevel.ReadCommitted))
+            {
+                unitOfWork.GetRepository<Crash>().Remove(crash);
+
+                await unitOfWork.SaveAsync();
+
+                await transaction.CommitAsync();
+            }
         }
 
         public async Task UploadToDatabase(List<Crash> crashes)

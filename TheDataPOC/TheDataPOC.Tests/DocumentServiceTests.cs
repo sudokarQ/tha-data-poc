@@ -1,10 +1,12 @@
-﻿namespace Application.Services.Tests
+﻿namespace TheDataPOC.Tests
 {
     using System;
     using System.Collections.Generic;
     using System.Linq;
     using System.Linq.Expressions;
     using System.Threading.Tasks;
+
+    using Application.Services;
     
     using Domain.Models;
     
@@ -46,8 +48,10 @@
             var pageNumber = 1;
             var count = 2;
 
-            unitOfWorkMock.Setup(u => u.GetRepository<Crash>().Get(It.IsAny<Expression<Func<Crash, bool>>>()))
-                .Returns(data.AsQueryable().BuildMock());
+            unitOfWorkMock.Setup(u => u.GetRepository<Crash>()
+                .Get(It.IsAny<Expression<Func<Crash, bool>>>()))
+                    .Returns(data.AsQueryable()
+                    .BuildMock());
 
             var documentService = new DocumentService(unitOfWorkMock.Object);
 
@@ -96,8 +100,10 @@
             var pageNumber = 1;
             var count = 2;
 
-            unitOfWorkMock.Setup(u => u.GetRepository<Crash>().Get(It.IsAny<Expression<Func<Crash, bool>>>()))
-                .Returns(data.AsQueryable().BuildMock());
+            unitOfWorkMock.Setup(u => u.GetRepository<Crash>()
+                .Get(It.IsAny<Expression<Func<Crash, bool>>>()))
+                    .Returns(data.AsQueryable()
+                    .BuildMock());
 
             var documentService = new DocumentService(unitOfWorkMock.Object);
 

@@ -2,23 +2,28 @@
 {
     using System.Data;
     using System.Globalization;
-
+    
     using AutoMapper;
-    using Application.CSVHelper;
 
     using CsvHelper;
     using CsvHelper.Configuration;
-
-    using Domain.Models;
-
-    using Interfaces;
-
-    using Infrastructure.UnitOfWork;
-
-    using Microsoft.AspNetCore.Http;
     
+    using Domain.Models;
+    
+    using DTOs;
+    
+    using Infrastructure.UnitOfWork;
+    
+    using Interfaces;
+    
+    using Microsoft.AspNetCore.Http;
+    using Microsoft.EntityFrameworkCore;
+    
+    
+    using Validation;
+
     public class TrafficService : ITrafficService
-	{
+    {
         private readonly IUnitOfWork unitOfWork;
 
         private readonly IMapper mapper;
@@ -26,17 +31,17 @@
         private readonly DateTime DefaultDate = new DateTime(1000, 1, 1);
 
         public TrafficService(IUnitOfWork unitOfWork, IMapper mapper)
-		{
+        {
             this.unitOfWork = unitOfWork;
             this.mapper = mapper;
-		}
+        }
 
         public async Task<ProcessingResult> SaveDataAsync(IFormFile file)
         {
             var trafficCSVs = GetTrafficCSVs(file);
 
             var rowCount = trafficCSVs.Count();
-                        
+
             trafficCSVs = RemoveDataWithMissingValues(trafficCSVs);
 
             var traffics = mapper.Map<List<TrafficCSV>, List<Traffic>>(trafficCSVs);
@@ -50,13 +55,67 @@
                     AllRows = rowCount,
                     UploadedRows = traffics.Count(),
                 };
-            }        
+            }
 
             return new ProcessingResult
             {
                 AllRows = 0,
                 UploadedRows = 0,
             };
+        }
+
+        public async Task<Traffic> UpdateTrafficAsync(TrafficUpdateDto dto)
+        {
+            var traffic = await unitOfWork.GetRepository<Traffic>().Get(r => r.TrafficId == dto.TrafficId).FirstOrDefaultAsync();
+
+            if (traffic is null)
+            {
+                throw new ArgumentException("Traffic not found");
+            }
+
+            if (!ValidationHelper.Validate(dto))
+            {
+                throw new System.ComponentModel.DataAnnotations.ValidationException("Incorrect Latitude or Longtitude");
+            }
+
+            using (var transaction = unitOfWork.BeginTransaction(IsolationLevel.ReadUncommitted))
+            {
+                traffic.County = dto.County ?? traffic.County;
+                traffic.Community = dto.Community ?? traffic.Community;
+                traffic.Street = dto.Street ?? traffic.Street;
+                traffic.At = dto.At ?? traffic.At;
+                traffic.Directory = dto.Directory ?? traffic.Directory;
+                traffic.Directions = dto.Directions ?? traffic.Directions;
+                traffic.Latitude = dto.Latitude ?? traffic.Latitude;
+                traffic.Longitude = dto.Longitude ?? traffic.Longitude;
+
+                unitOfWork.GetRepository<Traffic>().Update(traffic);
+
+                await unitOfWork.SaveAsync();
+
+                await transaction.CommitAsync();
+            }
+
+            return traffic;
+        }
+
+        public async Task DeleteTrafficAsync(Guid trafficId)
+        {
+            var traffic = await unitOfWork.GetRepository<Traffic>().Get(r => r.TrafficId == trafficId).FirstOrDefaultAsync();
+
+            if (traffic is null)
+            {
+                throw new ArgumentException("Traffic not found");
+            }
+
+            using (var transaction = unitOfWork.BeginTransaction(IsolationLevel.ReadCommitted))
+            {
+                unitOfWork.GetRepository<Traffic>().Remove(traffic);
+
+                await unitOfWork.SaveAsync();
+
+                await transaction.CommitAsync();
+            }
         }
 
         public List<TrafficCSV> GetTrafficCSVs(IFormFile file)
@@ -70,7 +129,7 @@
             };
 
             using var csv = new CsvReader(reader, csvConfig);
-                              
+
             return csv.GetRecords<TrafficCSV>().ToList();
         }
 

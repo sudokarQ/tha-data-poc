@@ -1,5 +1,6 @@
 ﻿namespace API.Controllers
 {
+    using Application.DTOs;
     using Application.Services.Interfaces;
 
     using Domain.Enums;
@@ -21,10 +22,19 @@
 
         private readonly IDocumentService documentService;
 
-        public DocumentController(IUploadService uploadService, IDocumentService documentService)
+        private readonly ICrashService crashService;
+
+        private readonly ITrafficService trafficService;
+
+        private readonly IPedestrianService pedestrianService;
+
+        public DocumentController(IUploadService uploadService, IDocumentService documentService, ICrashService crashService, ITrafficService trafficService, IPedestrianService pedestrianService)
         {
             this.uploadService = uploadService;
             this.documentService = documentService;
+            this.crashService = crashService;
+            this.trafficService = trafficService;
+            this.pedestrianService = pedestrianService;
         }
 
         [HttpPost]
@@ -115,6 +125,84 @@
                     default:
                         throw new ArgumentException("Type not found");
                 }
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        [HttpDelete("{tableName}/{id}")]
+        public async Task<IActionResult> DeleteData(string tableName, Guid id)
+        {
+            try
+            {
+                var tableNameEnum = Enum.Parse<TableName>(tableName, ignoreCase: true);
+
+                switch (tableNameEnum)
+                {
+                    case TableName.Crash:
+                        await crashService.DeleteCrashAsync(id);
+                        break;
+
+                    case TableName.Pedestrian:
+                        await pedestrianService.DeletePedestrianAsync(id);
+                        break;
+
+                    case TableName.Traffic:
+                        await trafficService.DeleteTrafficAsync(id);
+                        break;
+
+                    default:
+                        throw new ArgumentException("Type not found");
+                }
+
+                return Ok("Deleted");
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        [HttpPut("crash")]
+        public async Task<IActionResult> UpdateData(CrashUpdateDto dto)
+        {
+            try
+            {
+                var crash = await crashService.UpdateCrashAsync(dto);
+
+                return Ok(crash);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        [HttpPut("traffic")]
+        public async Task<IActionResult> UpdateData(TrafficUpdateDto dto)
+        {
+            try
+            {
+                var traffic = await trafficService.UpdateTrafficAsync(dto);
+
+                return Ok(traffic);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        [HttpPut("pedestrian")]
+        public async Task<IActionResult> UpdateData(PedestrianUpdateDto dto)
+        {
+            try
+            {
+                var pedestrian = await pedestrianService.UpdatePedestrianAsync(dto);
+
+                return Ok(pedestrian);
             }
             catch (Exception ex)
             {

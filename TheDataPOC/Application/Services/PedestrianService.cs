@@ -3,18 +3,20 @@
     using System;
     using System.Data;
     using System.Globalization;
-
-    using Application.CSVHelper;
-
-    using CsvHelper;
     
+    using CSVHelper;
+    using CsvHelper;
+
     using Domain.Models;
     
+    using DTOs;
+    
     using Infrastructure.UnitOfWork;
-
+    
     using Interfaces;
     
     using Microsoft.AspNetCore.Http;
+    using Microsoft.EntityFrameworkCore;
 
     public class PedestrianService : IPedestrianService
     {
@@ -56,6 +58,52 @@
             }            
 
             return new ProcessingResult { AllRows = totalRows, UploadedRows = uploadedRows, };
+        }
+
+        public async Task<Pedestrian> UpdatePedestrianAsync(PedestrianUpdateDto dto)
+        {
+            var pedestrian = await unitOfWork.GetRepository<Pedestrian>().Get(r => r.Id == dto.Id).FirstOrDefaultAsync();
+
+            if (pedestrian is null)
+            {
+                throw new ArgumentException("Pedestrian not found");
+            }
+
+            using (var transaction = unitOfWork.BeginTransaction(IsolationLevel.ReadUncommitted))
+            {
+                pedestrian.SeventhAndParkCampus = dto.SeventhAndParkCampus ?? pedestrian.SeventhAndParkCampus;
+                pedestrian.BlineConventionCentre = dto.BlineConventionCentre ?? pedestrian.BlineConventionCentre;
+                pedestrian.JordanAndSeventh = dto.JordanAndSeventh ?? pedestrian.JordanAndSeventh;
+                pedestrian.NCollegeAndRailRoad = dto.NCollegeAndRailRoad ?? pedestrian.NCollegeAndRailRoad;
+                pedestrian.SWalnutAndWylie = dto.SWalnutAndWylie ?? pedestrian.SWalnutAndWylie;
+
+                unitOfWork.GetRepository<Pedestrian>().Update(pedestrian);
+
+                await unitOfWork.SaveAsync();
+
+                await transaction.CommitAsync();
+            }
+
+            return pedestrian;
+        }
+
+        public async Task DeletePedestrianAsync(Guid pedestrianId)
+        {
+            var pedestrian = await unitOfWork.GetRepository<Pedestrian>().Get(r => r.Id == pedestrianId).FirstOrDefaultAsync();
+
+            if (pedestrian is null)
+            {
+                throw new ArgumentException("Pedestrian not found");
+            }
+
+            using (var transaction = unitOfWork.BeginTransaction(IsolationLevel.ReadCommitted))
+            {
+                unitOfWork.GetRepository<Pedestrian>().Remove(pedestrian);
+
+                await unitOfWork.SaveAsync();
+
+                await transaction.CommitAsync();
+            }
         }
 
         public async Task UploadToDatabase(List<Pedestrian> pedestrians)

@@ -1,23 +1,100 @@
 ﻿namespace TheDataPOC.Tests
 {
+    using System.Data;
+    using System.Linq.Expressions;
+
+    using Application.DTOs;
     using Application.Services;
 
     using Domain.Enums;
     using Domain.Models;
     
+    using Infrastructure.Repositories;
     using Infrastructure.UnitOfWork;
     
     using Microsoft.AspNetCore.Http;
+    using Microsoft.EntityFrameworkCore.Storage;
+    
+    using MockQueryable.Moq;
     
     using Moq;
 
     public class CrashServiceTests
     {
+        private const string PrimaryFactor = "Sample";
+
+        private const int Hour = 12;
+
         private readonly Mock<IUnitOfWork> unitOfWorkMock;
+
+        private readonly CrashService crashService;
 
         public CrashServiceTests()
         {
+            var transactionMock = new Mock<IDbContextTransaction>();
+
             unitOfWorkMock = new Mock<IUnitOfWork>();
+
+            unitOfWorkMock.Setup(u => u.BeginTransaction(IsolationLevel.ReadUncommitted)).Returns(transactionMock.Object);
+            unitOfWorkMock.Setup(u => u.BeginTransaction(IsolationLevel.ReadCommitted)).Returns(transactionMock.Object);
+
+            unitOfWorkMock.Setup(u => u.GetRepository<Crash>()).Returns(new Mock<IGenericRepository<Crash>>().Object);
+
+            crashService = new CrashService(unitOfWorkMock.Object);
+        }
+
+        [Fact]
+        public async Task UpdateCrash_NonExistingCrash_ThrowsArgumentException()
+        {
+            // Arrange
+            var crashs = new List<Crash>();
+
+            unitOfWorkMock.Setup(u => u.GetRepository<Crash>()
+            .Get(It.IsAny<Expression<Func<Crash, bool>>>()))
+                .Returns(crashs.AsQueryable()
+                .BuildMock());
+
+            var updateDto = new CrashUpdateDto { PrimaryFactor = PrimaryFactor, Hour = Hour };
+
+            // Act & Assert
+            await Assert.ThrowsAsync<ArgumentException>(() => crashService.UpdateCrashAsync(updateDto));
+        }
+
+        [Fact]
+        public async Task DeleteCrash_NonExistingCrash_ThrowsArgumentException()
+        {
+            // Arrange
+           
+            var crash = new Crash { Id = Guid.NewGuid(), PrimaryFactor = PrimaryFactor, Hour = Hour };
+
+            var crashs = new List<Crash>();
+
+            unitOfWorkMock.Setup(u => u.GetRepository<Crash>().
+                Get(It.IsAny<Expression<Func<Crash, bool>>>())).
+                    Returns(crashs.AsQueryable().
+                    BuildMock());
+
+            // Act & Assert
+            await Assert.ThrowsAsync<ArgumentException>(() => crashService.DeleteCrashAsync(crash.Id));
+        }
+
+        [Fact]
+        public async Task DeleteCrash_ExistingCrash_CalledOnce()
+        {
+            // Arrange
+
+            var crash = new Crash { Id = Guid.NewGuid(), PrimaryFactor = PrimaryFactor, Hour = Hour };
+
+            var crashs = new List<Crash>();
+
+            unitOfWorkMock.Setup(u => u.GetRepository<Crash>().
+                Get(It.IsAny<Expression<Func<Crash, bool>>>())).
+                    Returns(crashs.AsQueryable().
+                    BuildMock());
+
+
+            // Act & Assert
+            await Assert.ThrowsAsync<ArgumentException>(() => crashService.DeleteCrashAsync(crash.Id));
         }
 
         [Fact]
@@ -28,8 +105,7 @@
             {
                 InjuryType = "Fatal"
             };
-            var crashService = new CrashService(unitOfWorkMock.Object);
-
+            
             // Act
             var result = crashService.InjuryTypeParser(crashCSV);
 
@@ -45,7 +121,6 @@
             {
                 InjuryType = "Non-fatal"
             };
-            var crashService = new CrashService(unitOfWorkMock.Object);
 
             // Act
             var result = crashService.InjuryTypeParser(crashCSV);
@@ -62,7 +137,6 @@
             {
                 InjuryType = "No injury/unknown"
             };
-            var crashService = new CrashService(unitOfWorkMock.Object);
 
             // Act
             var result = crashService.InjuryTypeParser(crashCSV);
@@ -79,7 +153,6 @@
             {
                 InjuryType = null
             };
-            var crashService = new CrashService(unitOfWorkMock.Object);
 
             // Act
             var result = crashService.InjuryTypeParser(crashCSV);
@@ -93,7 +166,6 @@
         {
             // Arrange
             var time = "10:30 AM";
-            var crashService = new CrashService(unitOfWorkMock.Object);
 
             // Act
             var result = crashService.TimeParser(time);
@@ -107,7 +179,6 @@
         {
             // Arrange
             var time = "25:00 PM";
-            var crashService = new CrashService(unitOfWorkMock.Object);
 
             // Act
             var result = crashService.TimeParser(time);
@@ -124,7 +195,6 @@
             {
                 Date = "1/5/2022"
             };
-            var crashService = new CrashService(unitOfWorkMock.Object);
 
             // Act
             var result = crashService.DateParser(crashCSV);
@@ -141,7 +211,6 @@
             {
                 Date = "2022-01-05"
             };
-            var crashService = new CrashService(unitOfWorkMock.Object);
 
             // Act
             var result = crashService.DateParser(crashCSV);
@@ -160,7 +229,6 @@
                 Month = "1",
                 Day = "5"
             };
-            var crashService = new CrashService(unitOfWorkMock.Object);
 
             // Act
             var result = crashService.DateParser(crashCSV);
@@ -176,7 +244,6 @@
             var fileMock = new Mock<IFormFile>();
             var stream = GenerateFileStream("Master Record Number,Year,Month,Day,Weekend?,Hour,Collision Type,Injury Type,Primary Factor,Reported_Location,Latitude,Longitude\r\n902363382,2015,1,5,Weekday,0,2-Car,No injury/unknown,OTHER (DRIVER) - EXPLAIN IN NARRATIVE,1ST & FESS,39.15920668,-86.52587356\r\n902364268,2015,1,6,Weekday,1500,2-Car,No injury/unknown,FOLLOWING TOO CLOSELY,2ND & COLLEGE,39.16144,-86.534848");
             fileMock.Setup(f => f.OpenReadStream()).Returns(stream);
-            var crashService = new CrashService(unitOfWorkMock.Object);
 
             // Act
             var result = crashService.GetCrashCSVs(fileMock.Object);
@@ -190,7 +257,6 @@
         {
             // Arrange
             var date = new DateTime(2022, 1, 8);
-            var crashService = new CrashService(unitOfWorkMock.Object);
 
             // Act
             var result = crashService.IsWeekend(date);
@@ -204,7 +270,6 @@
         {
             // Arrange
             var date = new DateTime(2022, 1, 10);
-            var crashService = new CrashService(unitOfWorkMock.Object);
 
             // Act
             var result = crashService.IsWeekend(date);
@@ -217,9 +282,12 @@
         {
             var stream = new MemoryStream();
             var writer = new StreamWriter(stream);
+
             writer.Write(data);
             writer.Flush();
+
             stream.Position = 0;
+
             return stream;
         }
     }
