@@ -4,9 +4,12 @@
 
     using Infrastructure;
 
+    using Microsoft.OpenApi.Models;
+
     public class Startup
     {
         private readonly IConfiguration configuration;
+
         private readonly IWebHostEnvironment environment;
 
         public Startup(IConfiguration configuration, IWebHostEnvironment environment)
@@ -22,11 +25,12 @@
             services.AddAutoMapper(typeof(Startup));
 
             services
-                .AddApplication()
+                .AddApplication(configuration)
                 .AddInfrastructure(connection, configuration);
 
+            AddSwaggerDoc(services);
+
             services
-                .AddSwaggerGen()
                 .AddControllers();
         }
 
@@ -37,11 +41,49 @@
                 app.UseDeveloperExceptionPage();
             }
 
-            app
-                .UseRouting()
-                .UseSwagger()
-                .UseSwaggerUI()
-                .UseEndpoints(endpoints => endpoints.MapControllers());
+            app.UseRouting();
+
+            app.UseAuthentication();
+            app.UseAuthorization();
+
+
+            app.UseSwagger();
+            app.UseSwaggerUI();
+
+            app.UseEndpoints(endpoints => endpoints.MapControllers());
+        }
+
+
+        void AddSwaggerDoc(IServiceCollection services)
+        {
+            services.AddSwaggerGen(c =>
+            {
+                c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+                {
+                    Description = "example: 'Bearer 12345abcdef",
+                    Name = "Authorization",
+                    In = ParameterLocation.Header,
+                    Type = SecuritySchemeType.ApiKey,
+                    Scheme = "Bearer"
+                });
+
+                c.AddSecurityRequirement(new OpenApiSecurityRequirement() {
+        {
+            new OpenApiSecurityScheme
+            {
+                Reference = new OpenApiReference
+                {
+                    Type = ReferenceType.SecurityScheme,
+                    Id = "Bearer"
+                },
+                Scheme = "Oauth2",
+                Name = "Bearer",
+                In = ParameterLocation.Header
+            },
+            new List<string>()
+        }
+        });
+            });
         }
     }
 }

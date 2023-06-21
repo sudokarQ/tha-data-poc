@@ -4,15 +4,11 @@
 
     public interface IGenericRepository<TEntity> where TEntity : class
 	{
-        Task<TEntity> GetByIdAsync(Guid id);
-
         void Update(TEntity entity);
-
-        Task AddAsync(TEntity entity);
 
         void Remove(TEntity entity);
 
-        Task<bool> AnyAsync(Expression<Func<TEntity, bool>> predicate);
+        Task<bool> AnyAsync();
 
         IQueryable<TEntity> Get(Expression<Func<TEntity, bool>>? expression = null);
 

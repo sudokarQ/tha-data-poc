@@ -1,5 +1,6 @@
 ﻿namespace API.Controllers
 {
+    using System.Collections.Specialized;
     using System.ComponentModel.DataAnnotations;
 
     using Application.DTOs;
@@ -11,17 +12,19 @@
     using Domain.Enums;
     using Domain.Models;
 
+    using Infrastructure.Seeders;
+    
+    using Microsoft.AspNetCore.Authorization;
     using Microsoft.AspNetCore.Mvc;
 
     using Sieve.Models;
     using Sieve.Services;
 
+    [Authorize]
     [ApiController]
     [Route("api/[controller]")]
     public class DocumentController : ControllerBase
     {
-        private const int MaxRowsNumber = 200;
-
         private const int DefaultRowsNumber = 20;
 
         private const int DefaultPageNumber = 1;
@@ -93,6 +96,7 @@
             }
         }
 
+        [Authorize(Roles = UserRolesSeeder.ScientistName)]
         [HttpPost]
         public async Task<IActionResult> UploadData(IFormFile file)
         {
@@ -100,7 +104,7 @@
             {
                 var result = await uploadService.UploadFileAsync(file);
 
-                return Ok($"Total rows:{result.AllRows}, uploaded rows: {result.UploadedRows}");
+                return StatusCode(201, $"Total rows:{result.AllRows}, uploaded rows: {result.UploadedRows}");
             }
             catch (Exception ex)
             {
@@ -115,7 +119,7 @@
             string tableName,
             [FromQuery] int pageNumber = DefaultPageNumber,
             int count = DefaultRowsNumber)
-        {           
+        { 
             try
             {
                 var tableNameEnum = Enum.Parse<TableName>(tableName, ignoreCase: true);
@@ -182,6 +186,7 @@
             }
         }
 
+        [Authorize(Roles = UserRolesSeeder.AdminName)]
         [HttpDelete("{tableName}/{id}")]
         public async Task<IActionResult> DeleteData(string tableName, Guid id)
         {
@@ -207,7 +212,7 @@
                         throw new ArgumentException("Type not found");
                 }
 
-                return Ok("Deleted");
+                return NoContent();
             }
             catch (Exception ex)
             {
@@ -215,6 +220,7 @@
             }
         }
 
+        [Authorize(Roles = UserRolesSeeder.AdminName)]
         [HttpPut("crash")]
         public async Task<IActionResult> UpdateData(CrashUpdateDto dto)
         {
@@ -230,6 +236,7 @@
             }
         }
 
+        [Authorize(Roles = UserRolesSeeder.AdminName)]
         [HttpPut("traffic")]
         public async Task<IActionResult> UpdateData(TrafficUpdateDto dto)
         {
@@ -245,6 +252,7 @@
             }
         }
 
+        [Authorize(Roles = UserRolesSeeder.AdminName)]
         [HttpPut("pedestrian")]
         public async Task<IActionResult> UpdateData(PedestrianUpdateDto dto)
         {

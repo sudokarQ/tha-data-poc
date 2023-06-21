@@ -20,19 +20,14 @@
             this.dbSet = context.Set<TEntity>();
         }
 
-        public async Task AddAsync(TEntity entity)
-        {
-            await dbSet.AddAsync(entity);
-        }
-
         public async Task AddRangeAsync(IEnumerable<TEntity> entities)
         {
             await dbSet.AddRangeAsync(entities);
         }
 
-        public async Task<bool> AnyAsync(Expression<Func<TEntity, bool>> predicate)
+        public async Task<bool> AnyAsync()
         {
-            return await dbSet.AnyAsync(predicate);
+            return await dbSet.AnyAsync();
         }
 
         public IQueryable<TEntity> Get(Expression<Func<TEntity, bool>>? expression = null)
@@ -43,11 +38,6 @@
             }
 
             return dbSet.Where(expression).AsQueryable();
-        }
-
-        public async Task<TEntity> GetByIdAsync(Guid id)
-        {
-            return await dbSet.FindAsync(id);
         }
 
         public void Remove(TEntity entity)
