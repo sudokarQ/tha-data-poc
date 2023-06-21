@@ -9,11 +9,15 @@
     using Services;
     using Services.Interfaces;
 
+    using Sieve.Services;
+
     public static class ApplicationConfigExtensions
 	{
         public static IServiceCollection AddApplication(this IServiceCollection services)
         {
             services.AddAutoMapper();
+
+            services.AddScoped<ISieveProcessor, SieveProcessor>();
 
             return services.AddServices();
         }
@@ -30,7 +34,6 @@
             
             services.AddScoped<IDocumentService, DocumentService>();
 
-            
             return services;
         }
 
