@@ -1,12 +1,20 @@
 ﻿namespace API.Controllers
 {
+    using System.ComponentModel.DataAnnotations;
+
     using Application.DTOs;
+
     using Application.Services.Interfaces;
+
+    using Attributes;
 
     using Domain.Enums;
     using Domain.Models;
 
     using Microsoft.AspNetCore.Mvc;
+
+    using Sieve.Models;
+    using Sieve.Services;
 
     [ApiController]
     [Route("api/[controller]")]
@@ -18,6 +26,8 @@
 
         private const int DefaultPageNumber = 1;
 
+        private readonly ISieveProcessor sieveProcessor;
+
         private readonly IUploadService uploadService;
 
         private readonly IDocumentService documentService;
@@ -28,13 +38,59 @@
 
         private readonly IPedestrianService pedestrianService;
 
-        public DocumentController(IUploadService uploadService, IDocumentService documentService, ICrashService crashService, ITrafficService trafficService, IPedestrianService pedestrianService)
+        public DocumentController(
+            ISieveProcessor sieveProcessor,
+            IUploadService uploadService,
+            IDocumentService documentService,
+            ICrashService crashService,
+            ITrafficService trafficService,
+            IPedestrianService pedestrianService)
         {
+            this.sieveProcessor = sieveProcessor;
             this.uploadService = uploadService;
             this.documentService = documentService;
             this.crashService = crashService;
             this.trafficService = trafficService;
             this.pedestrianService = pedestrianService;
+        }
+
+        [TableDataPaginationParametersFilter]
+        [HttpGet("{tableName}/GetFilteredAndSorted")]
+        public async Task<IActionResult> GetFilteredAndSortedData(
+            string tableName,
+            [FromQuery] SieveModel sieveModel,
+            int pageNumber = DefaultPageNumber,
+            int count = DefaultRowsNumber)
+        {
+            try
+            {
+                var tableNameEnum = Enum.Parse<TableName>(tableName, ignoreCase: true);
+
+                switch (tableNameEnum)
+                {
+                    case TableName.Crash:
+                        var crashes = await documentService.GetData<Crash>(pageNumber, count);
+                        var crashesResult = sieveProcessor.Apply(sieveModel, crashes.AsQueryable());
+                        return Ok(crashesResult);
+
+                    case TableName.Pedestrian:
+                        var pedestrians = await documentService.GetData<Pedestrian>(pageNumber, count);
+                        var pedestriansResult = sieveProcessor.Apply(sieveModel, pedestrians.AsQueryable());
+                        return Ok(pedestriansResult);
+
+                    case TableName.Traffic:
+                        var traffics = await documentService.GetData<Traffic>(pageNumber, count);
+                        var trafficsResult = sieveProcessor.Apply(sieveModel, traffics.AsQueryable());
+                        return Ok(trafficsResult);
+
+                    default:
+                        throw new ArgumentException("Type not found");
+                }
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
 
         [HttpPost]
@@ -53,19 +109,13 @@
 
         }
 
+        [TableDataPaginationParametersFilter]
         [HttpGet("{tableName}")]
-        public async Task<IActionResult> GetData(string tableName, [FromQuery] int pageNumber = DefaultPageNumber, int count = DefaultRowsNumber)
-        {
-            if (pageNumber <= 0 || count <= 0 || string.IsNullOrWhiteSpace(tableName))
-            {
-                return BadRequest("Invalid parameters. Please check the properties.");
-            }
-
-            if (count > MaxRowsNumber)
-            {
-                return BadRequest("Maximum row count exceeded. Please limit the count to 200 or fewer.");
-            }
-
+        public async Task<IActionResult> GetData(
+            string tableName,
+            [FromQuery] int pageNumber = DefaultPageNumber,
+            int count = DefaultRowsNumber)
+        {           
             try
             {
                 var tableNameEnum = Enum.Parse<TableName>(tableName, ignoreCase: true);
