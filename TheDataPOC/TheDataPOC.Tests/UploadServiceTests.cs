@@ -4,8 +4,6 @@
     using Application.Services.Interfaces;
 
     using AutoMapper;
-
-    using Domain.Models;
    
     using Infrastructure.UnitOfWork;
     
