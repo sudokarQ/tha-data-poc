@@ -1,4 +1,4 @@
-# Crew 24  - The Data-POC
+# Crew 24 - The Data-POC
 
 ## How to start application
  
