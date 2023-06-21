@@ -13,7 +13,7 @@
 
         public void OnResourceExecuting(ResourceExecutingContext context)
         {
-            var tableName = (string)context.HttpContext.Request.Query["tableName"];
+            var tableName = context.HttpContext.Request.Path.Value.Split('/')[3];
 
             int count, pageNumber;
 
