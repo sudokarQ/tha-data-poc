@@ -31,9 +31,6 @@
     <None Remove="Controllers\" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Controllers\" />
-  </ItemGroup>
-  <ItemGroup>
     <ProjectReference Include="..\Application\Application.csproj">
       <GlobalPropertiesToRemove></GlobalPropertiesToRemove>
     </ProjectReference>
