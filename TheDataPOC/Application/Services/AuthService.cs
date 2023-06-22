@@ -3,7 +3,7 @@
     using System.IdentityModel.Tokens.Jwt;
     using System.Security.Claims;
     using System.Text;
-   
+    
     using Domain.Models;
     
     using DTOs;
@@ -20,30 +20,30 @@
 
         private User user;
 
-        private IConfiguration configuration;
+        private IConfigurationSection jwtSettings;
 
         public AuthService(UserManager<User> userManager, IConfiguration configuration)
         {
             this.userManager = userManager;
 
-            this.configuration = configuration;
+            jwtSettings = configuration.GetSection("Jwt");
         }
 
         public async Task<string> CreateToken()
         {
-            var signingCredentials = GetSigningCredentials(configuration);
+            var signingCredentials = GetSigningCredentials();
             var claims = await GetClaims();
-            var token = GenerateTokenOption(signingCredentials, claims, configuration);
+            var token = GenerateTokenOption(signingCredentials, claims);
 
             return new JwtSecurityTokenHandler().WriteToken(token);
         }
 
-        private JwtSecurityToken GenerateTokenOption(SigningCredentials signingCredentials, List<Claim> claims, IConfiguration configuration)
+        private JwtSecurityToken GenerateTokenOption(SigningCredentials signingCredentials, List<Claim> claims)
         {
-            var expiration = DateTime.Now.AddMinutes(Convert.ToDouble(configuration["lifetime"]));
+            var expiration = DateTime.Now.AddMinutes(Convert.ToDouble(jwtSettings.GetSection("lifetime").Value));
 
             var token = new JwtSecurityToken(
-                issuer: configuration["Issuer"],
+                issuer: jwtSettings.GetSection("Issuer").Value,
                 claims: claims,
                 expires: expiration,
                 signingCredentials: signingCredentials,
@@ -71,9 +71,10 @@
             return claims;
         }
 
-        private SigningCredentials GetSigningCredentials(IConfiguration configuration)
+        private SigningCredentials GetSigningCredentials()
         {
-            var key = configuration["secret"];
+            var key = jwtSettings.GetSection("secret").Value;
+
             var secret = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(key));
 
             return new SigningCredentials(secret, SecurityAlgorithms.HmacSha256);

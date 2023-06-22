@@ -73,7 +73,8 @@
 
         private static void ConfigureJWT(this IServiceCollection services, IConfiguration configuration)
         {
-            var key = configuration["secret"];
+            var jwtSettings = configuration.GetSection("Jwt");
+            var key = jwtSettings.GetSection("secret").Value;
 
             services.AddAuthentication(o =>
             {
@@ -87,7 +88,7 @@
                         ValidateIssuer = true,
                         ValidateLifetime = true,
                         ValidateIssuerSigningKey = true,
-                        ValidIssuer = configuration["Issuer"],
+                        ValidIssuer = jwtSettings.GetSection("Issuer").Value,
                         IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(key)),
                     };
                     o.Audience = "TheDataPOC.API";
