@@ -5,6 +5,7 @@
     using System.Globalization;
 
     using CSVHelper;
+
     using CsvHelper;
     
     using Domain.Enums;
@@ -173,17 +174,17 @@
 
             if (time.Length <= 3)
             {
-                return Convert.ToInt32(time[0]);
+                return int.Parse(time[0].ToString());
             }
 
             if (time.Length == 4)
             {
-                return Convert.ToInt32(time[0..2]);
+                return int.Parse(time[0..2]);
             }
 
             if (time.Contains(':') && (time.Contains("PM") || time.Contains("AM")))
             {
-                var result = Convert.ToInt32(time.Split(':')[0]);
+                var result = int.Parse(time.Split(':')[0]);
 
                 if (result > 12)
                 {
